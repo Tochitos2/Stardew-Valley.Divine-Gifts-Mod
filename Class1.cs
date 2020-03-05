@@ -13,6 +13,7 @@ namespace YobaGifts
         public override void Entry(IModHelper helper)
         {
             // Event handlers will be added here.
+            helper.Events.GameLoop.DayStarted += LoadEvents;
         }
 
         /**
@@ -59,27 +60,55 @@ namespace YobaGifts
             // Write the updated list of events to save data.
             this.Helper.Data.WriteGlobalData("events", events);
         }
+        
+        /**
+         * Updates the list of ongoing events stored in save data.
+         */
+        private void SaveEvents(List<Event> events)
+        {
+            // Write the updated list of events to save data.
+            this.Helper.Data.WriteGlobalData("events", events);
+        }
 
         /**
          * Loads the list of events from save data and calls HandleEvent to alter the game appropriately.
          */
-        private void LoadEvents()
+        private void LoadEvents(object sender, DayStartedEventArgs e)
         {
             var events = this.Helper.Data.ReadSaveData<List<Event>>("events");
 
             if (events == null) return;
             foreach (var eEvent in events)
             {
-                HandleEvent(eEvent);        
+                HandleEvent(eEvent, events);        
             }
+            
+            // Update the event list in memory, as events may have expired this day.
+            SaveEvents(events);
         }
 
         /**
          * Implements the effects of an event on the player / world.
          */
-        private void HandleEvent(Event eEvent)
+        private void HandleEvent(Event eEvent, List<Event> events)
         {
-            
+            if (eEvent.daysLeft == 0)
+            {
+                CleanUpEvent(eEvent);
+                events.Remove(eEvent);
+            }
+            switch (eEvent.eventID)
+            {
+                case "luck":
+                    Game1.player.team.sharedDailyLuck.Value += 0.03;
+                    break;
+                case "maxhealth":
+                    Game1.player.maxHealth += 20;
+                    break;
+                case "maxenergy":
+                    Game1.player.MaxStamina += 20;     
+                    break;
+            }
         }
         
         /**
@@ -108,11 +137,28 @@ namespace YobaGifts
         }
         
         /**
+         * Reverts changes to values caused by events.
+         */
+        private void CleanUpEvent(Event eEvent)
+        {
+            
+            switch (eEvent.eventID)
+                        {
+                            case "maxhealth":
+                                Game1.player.maxHealth -= 20;
+                                break;
+                            case "maxenergy":
+                                Game1.player.MaxStamina -= 20;     
+                                break;
+                        }
+        }
+        
+        /**
          * Data class for holding event data, to be read/written to save data.
          */
         class Event
         {
-            public int eventID { get; set; }
+            public string eventID { get; set; } // luck, maxhealth, maxenergy,
             public int modifierValue { get; set; }
             public int daysLeft { get; set; }
         }
