@@ -36,7 +36,7 @@ namespace YobaGifts
          */
         private  void AddRandomGoodEvent(int value)
         {
-            throw new NotImplementedException(); ;
+            throw new NotImplementedException();
         }
 
         /**
@@ -47,6 +47,9 @@ namespace YobaGifts
             throw new NotImplementedException();
         }
         
+        /**
+         * Adds a new event to the list of ongoing events stored in save data.
+         */
         private void SaveEvent(Event newEvent)
         {
             // Reads in the list of events, initialises list if null, then adds the new event.
@@ -55,6 +58,28 @@ namespace YobaGifts
             
             // Write the updated list of events to save data.
             this.Helper.Data.WriteGlobalData("events", events);
+        }
+
+        /**
+         * Loads the list of events from save data and calls HandleEvent to alter the game appropriately.
+         */
+        private void LoadEvents()
+        {
+            var events = this.Helper.Data.ReadSaveData<List<Event>>("events");
+
+            if (events == null) return;
+            foreach (var eEvent in events)
+            {
+                HandleEvent(eEvent);        
+            }
+        }
+
+        /**
+         * Implements the effects of an event on the player / world.
+         */
+        private void HandleEvent(Event eEvent)
+        {
+            
         }
         
         /**
