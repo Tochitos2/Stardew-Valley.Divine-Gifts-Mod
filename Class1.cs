@@ -14,6 +14,8 @@ namespace YobaGifts
         {
             // Load events from save data, and initiate or delete them as appropriate.
             helper.Events.GameLoop.DayStarted += LoadEvents;
+
+            helper.Events.GameLoop.DayEnding += CleanUpEvents;
             // Add/remove input listener for shrine interaction on entering leaving pierre's shop.
             helper.Events.Player.Warped += HandleShopEvents;
         }
@@ -125,8 +127,8 @@ namespace YobaGifts
         private void LoadEvents(object sender, DayStartedEventArgs e)
         {
             var events = this.Helper.Data.ReadSaveData<List<Event>>("events");
-
             if (events == null) return;
+            
             foreach (var eEvent in events)
             {
                 HandleEvent(eEvent, events);        
@@ -143,7 +145,6 @@ namespace YobaGifts
         {
             if (eEvent.daysLeft == 0)
             {
-                CleanUpEvent(eEvent);
                 events.Remove(eEvent);
             }
             switch (eEvent.eventID)
@@ -188,18 +189,23 @@ namespace YobaGifts
         /**
          * Reverts changes to values caused by events.
          */
-        private void CleanUpEvent(Event eEvent)
+        private void CleanUpEvents(object sender, DayEndingEventArgs e)
         {
-            
-            switch (eEvent.eventID)
-                        {
-                            case "maxhealth":
-                                Game1.player.maxHealth -= 20;
-                                break;
-                            case "maxstamina":
-                                Game1.player.MaxStamina -= 20;     
-                                break;
-                        }
+            var events = this.Helper.Data.ReadSaveData<List<Event>>("events");
+            if (events == null) return;
+
+            foreach (var eEvent in events)
+            {
+                switch (eEvent.eventID)
+                {
+                    case "maxhealth":
+                    Game1.player.maxHealth -= 20;
+                    break;
+                    case "maxstamina":
+                    Game1.player.MaxStamina -= 20;     
+                    break;
+                }
+            }
         }
         
         /**
