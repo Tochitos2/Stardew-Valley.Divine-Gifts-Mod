@@ -5,6 +5,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.Objects;
 
 namespace YobaGifts
 {
@@ -158,6 +159,9 @@ namespace YobaGifts
                 case "maxstamina":
                     Game1.player.MaxStamina += eEvent.modifierValue;     
                     break;
+                case "ringofyoba":
+                    GiveYobaRing();
+                    break;
             }
         }
         
@@ -209,11 +213,20 @@ namespace YobaGifts
         }
         
         /**
+         * Gives the player the ring of yoba.
+         */
+        private void GiveYobaRing()
+        {
+            Item ring = new Ring(524); // ID of ring of yoba
+            Game1.player.addItemByMenuIfNecessary(ring);
+        }
+        
+        /**
          * Data class for holding event data, to be read/written to save data.
          */
         class Event
         {
-            public string eventID { get; set; } // luck, maxhealth, maxstamina,
+            public string eventID { get; set; } // luck, maxhealth, maxstamina, ringofyoba
             public int modifierValue { get; set; }
             public int daysLeft { get; set; }
         }
