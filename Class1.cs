@@ -12,12 +12,61 @@ namespace YobaGifts
     {
         public override void Entry(IModHelper helper)
         {
-            // Event handlers will be added here.
+            // Load events from save data, and initiate or delete them as appropriate.
             helper.Events.GameLoop.DayStarted += LoadEvents;
+            // Add/remove input listener for shrine interaction on entering leaving pierre's shop.
+            helper.Events.Player.Warped += HandleShopEvents;
         }
 
         /**
-         * Handles an item offering to Yoba.
+         * Add/remove input listener for shrine interaction on entering leaving pierre's shop.
+         */
+        private void HandleShopEvents(object sender, WarpedEventArgs e)
+        {
+            if (Game1.currentLocation.name == "SeedShop")
+            {
+                this.Helper.Events.Input.ButtonPressed += CheckSelectedTileIsShrine;
+            }
+            else
+            {
+                this.Helper.Events.Input.ButtonPressed -= CheckSelectedTileIsShrine;
+            }
+        }
+
+        /**
+         * Checks whether the player currently has the shrine selected when a button is pressed, and opens the menu.
+         */
+        private void CheckSelectedTileIsShrine(object sender, ButtonPressedEventArgs e)
+        {
+            // Return if the pressed button is not an interaction button.
+            if(!e.Button.IsActionButton()) { return; }
+            // Suppresses the button pressed to prevent the original dialogue for the shrine from appearing.
+            this.Helper.Input.Suppress(e.Button);
+            
+            // Get the selected tile coordinates and checks if they match the shrine's; if they do open the menu.
+            var selectedTile = Game1.player.getTileLocation();
+            if (selectedTile.Y == 272 && selectedTile.X > 575 && selectedTile.X < 609)
+            {
+                ShowMenu();
+            }
+        }
+
+        /**
+         * Opens the UI menu for donating items to the shrine.
+         */
+        private void ShowMenu()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetUpShrineTile()
+        {
+            var location = Game1.getLocationFromName("SeedShop");
+            
+        }
+
+        /**
+         * Handles an item passed via the donation UI.
          */
         public void ItemHandler(Item item)
         {
@@ -105,7 +154,7 @@ namespace YobaGifts
                 case "maxhealth":
                     Game1.player.maxHealth += 20;
                     break;
-                case "maxenergy":
+                case "maxstamina":
                     Game1.player.MaxStamina += 20;     
                     break;
             }
@@ -147,7 +196,7 @@ namespace YobaGifts
                             case "maxhealth":
                                 Game1.player.maxHealth -= 20;
                                 break;
-                            case "maxenergy":
+                            case "maxstamina":
                                 Game1.player.MaxStamina -= 20;     
                                 break;
                         }
@@ -158,7 +207,7 @@ namespace YobaGifts
          */
         class Event
         {
-            public string eventID { get; set; } // luck, maxhealth, maxenergy,
+            public string eventID { get; set; } // luck, maxhealth, maxstamina,
             public int modifierValue { get; set; }
             public int daysLeft { get; set; }
         }
