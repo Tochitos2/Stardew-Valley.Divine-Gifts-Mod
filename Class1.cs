@@ -150,13 +150,13 @@ namespace YobaGifts
             switch (eEvent.eventID)
             {
                 case "luck":
-                    Game1.player.team.sharedDailyLuck.Value += 0.03;
+                    Game1.player.team.sharedDailyLuck.Value += eEvent.modifierValue;
                     break;
                 case "maxhealth":
-                    Game1.player.maxHealth += 20;
+                    Game1.player.maxHealth += eEvent.modifierValue;
                     break;
                 case "maxstamina":
-                    Game1.player.MaxStamina += 20;     
+                    Game1.player.MaxStamina += eEvent.modifierValue;     
                     break;
             }
         }
@@ -199,10 +199,10 @@ namespace YobaGifts
                 switch (eEvent.eventID)
                 {
                     case "maxhealth":
-                    Game1.player.maxHealth -= 20;
+                    Game1.player.maxHealth -= eEvent.modifierValue;
                     break;
                     case "maxstamina":
-                    Game1.player.MaxStamina -= 20;     
+                    Game1.player.MaxStamina -= eEvent.modifierValue;     
                     break;
                 }
             }
