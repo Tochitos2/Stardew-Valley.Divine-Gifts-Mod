@@ -99,24 +99,28 @@ namespace YobaGifts
         {
             var eEvent = new Event();
             var random = new Random();
-            switch (random.Next(1,3))
+            switch (random.Next(1,5))
             {
                 case 1:
                     eEvent.eventID = "luck";
                     eEvent.daysLeft = random.Next(1, 3);
                     eEvent.modifierValue = -0.03;
                     break;
-                case 2:
+                case 2: case 3:
                     eEvent.eventID = "maxhealth";
                     eEvent.daysLeft = random.Next(1, 3);
                     eEvent.modifierValue = -15;
                     break;
-                case 3:
+                case 4: case 5:
                     eEvent.eventID = "maxstamina";
                     eEvent.daysLeft = random.Next(1, 3);
                     eEvent.modifierValue = -20;
                     break;
             }
+            var events = this.Helper.Data.ReadSaveData<List<Event>>("events") ?? new List<Event>();
+            HandleEvent(eEvent, events);
+            events.Add(eEvent);
+            SaveEvents(events);
         }
         
         /**
