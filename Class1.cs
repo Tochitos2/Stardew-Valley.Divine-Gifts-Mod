@@ -95,9 +95,28 @@ namespace YobaGifts
         /**
          * Causes a random bad event to occur to the player who donated the item.
          */
-        private static void AddRandomBadEvent()
+        private void AddRandomBadEvent()
         {
-            throw new NotImplementedException();
+            var eEvent = new Event();
+            var random = new Random();
+            switch (random.Next(1,3))
+            {
+                case 1:
+                    eEvent.eventID = "luck";
+                    eEvent.daysLeft = random.Next(1, 3);
+                    eEvent.modifierValue = -0.03;
+                    break;
+                case 2:
+                    eEvent.eventID = "maxhealth";
+                    eEvent.daysLeft = random.Next(1, 3);
+                    eEvent.modifierValue = -15;
+                    break;
+                case 3:
+                    eEvent.eventID = "maxstamina";
+                    eEvent.daysLeft = random.Next(1, 3);
+                    eEvent.modifierValue = -20;
+                    break;
+            }
         }
         
         /**
@@ -144,6 +163,7 @@ namespace YobaGifts
          */
         private void HandleEvent(Event eEvent, List<Event> events)
         {
+            eEvent.daysLeft -= 1;
             if (eEvent.daysLeft == 0)
             {
                 events.Remove(eEvent);
@@ -154,10 +174,10 @@ namespace YobaGifts
                     Game1.player.team.sharedDailyLuck.Value += eEvent.modifierValue;
                     break;
                 case "maxhealth":
-                    Game1.player.maxHealth += eEvent.modifierValue;
+                    Game1.player.maxHealth += Convert.ToInt16(eEvent.modifierValue);
                     break;
                 case "maxstamina":
-                    Game1.player.MaxStamina += eEvent.modifierValue;     
+                    Game1.player.MaxStamina += Convert.ToInt16(eEvent.modifierValue);     
                     break;
                 case "ringofyoba":
                     GiveYobaRing();
@@ -203,10 +223,10 @@ namespace YobaGifts
                 switch (eEvent.eventID)
                 {
                     case "maxhealth":
-                    Game1.player.maxHealth -= eEvent.modifierValue;
+                    Game1.player.maxHealth -= Convert.ToInt16(eEvent.modifierValue);
                     break;
                     case "maxstamina":
-                    Game1.player.MaxStamina -= eEvent.modifierValue;     
+                    Game1.player.MaxStamina -= Convert.ToInt16(eEvent.modifierValue);     
                     break;
                 }
             }
@@ -227,7 +247,7 @@ namespace YobaGifts
         class Event
         {
             public string eventID { get; set; } // luck, maxhealth, maxstamina, ringofyoba
-            public int modifierValue { get; set; }
+            public double modifierValue { get; set; }
             public int daysLeft { get; set; }
         }
     }
