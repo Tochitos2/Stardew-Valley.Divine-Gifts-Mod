@@ -61,12 +61,7 @@ namespace YobaGifts
         {
             throw new NotImplementedException();
         }
-
-        public void SetUpShrineTile()
-        {
-            var location = Game1.getLocationFromName("SeedShop");
-            
-        }
+        
 
         /**
          * Handles an item passed via the donation UI.
@@ -84,12 +79,45 @@ namespace YobaGifts
         }
 
         /**
-         * Causes a random bad event to occur to the player who donated the item. The higher the offering 
-         * value the higher the chance of better events occuring. 
+         * Causes a random good event to occur to the player who donated the item. The higher the offering 
+         * value the higher the chance of better events occuring, and the longer the effect. 
          */
         private  void AddRandomGoodEvent(int value)
         {
-            throw new NotImplementedException();
+            var ringChance = value * 0.02;
+            var luckChance = value * 0.08;
+            var staminaChance = value * 0.14;
+            var result = new Random().Next(1,101);
+            var events = this.Helper.Data.ReadSaveData<List<Event>>("events") ?? new List<Event>();
+            var eEvent = new Event {daysLeft = Convert.ToInt32(Math.Floor(Math.Sqrt(value) / 6))};
+
+            if (ringChance > result)
+            {
+                eEvent.eventID = "ringofyoba";
+                HandleEvent(eEvent, events);
+                SaveEvents(events);
+            }
+            else if (luckChance > result)
+            {
+                eEvent.eventID = "luck";
+                eEvent.modifierValue = 0.03;
+                HandleEvent(eEvent, events);
+                SaveEvents(events);
+            }
+            else if (staminaChance > result)
+            {
+                eEvent.eventID = "maxstamina";
+                eEvent.modifierValue = 17;
+                HandleEvent(eEvent, events);
+                SaveEvents(events);
+            }
+            else
+            {
+                eEvent.eventID = "maxhealth";
+                eEvent.modifierValue = 20;
+                HandleEvent(eEvent, events);
+                SaveEvents(events);
+            }
         }
 
         /**
@@ -99,21 +127,21 @@ namespace YobaGifts
         {
             var eEvent = new Event();
             var random = new Random();
-            switch (random.Next(1,5))
+            switch (random.Next(1,6))
             {
                 case 1:
                     eEvent.eventID = "luck";
-                    eEvent.daysLeft = random.Next(1, 3);
+                    eEvent.daysLeft = random.Next(1, 4);
                     eEvent.modifierValue = -0.03;
                     break;
                 case 2: case 3:
                     eEvent.eventID = "maxhealth";
-                    eEvent.daysLeft = random.Next(1, 3);
+                    eEvent.daysLeft = random.Next(1, 4);
                     eEvent.modifierValue = -15;
                     break;
                 case 4: case 5:
                     eEvent.eventID = "maxstamina";
-                    eEvent.daysLeft = random.Next(1, 3);
+                    eEvent.daysLeft = random.Next(1, 4);
                     eEvent.modifierValue = -20;
                     break;
             }
