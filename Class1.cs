@@ -15,7 +15,6 @@ namespace YobaGifts
         {
             // Load events from save data, and initiate or delete them as appropriate.
             helper.Events.GameLoop.DayStarted += LoadEvents;
-
             helper.Events.GameLoop.DayEnding += CleanUpEvents;
             // Add/remove input listener for shrine interaction on entering leaving pierre's shop.
             helper.Events.Player.Warped += HandleShopEvents;
@@ -28,11 +27,11 @@ namespace YobaGifts
         {
             if (Game1.currentLocation.name == "SeedShop")
             {
-                this.Helper.Events.Input.ButtonPressed += CheckSelectedTileIsShrine;
+                Helper.Events.Input.ButtonPressed += CheckSelectedTileIsShrine;
             }
             else
             {
-                this.Helper.Events.Input.ButtonPressed -= CheckSelectedTileIsShrine;
+                Helper.Events.Input.ButtonPressed -= CheckSelectedTileIsShrine;
             }
         }
 
@@ -44,14 +43,18 @@ namespace YobaGifts
             // Return if the pressed button is not an interaction button.
             if(!e.Button.IsActionButton()) { return; }
             // Suppresses the button pressed to prevent the original dialogue for the shrine from appearing.
-            this.Helper.Input.Suppress(e.Button);
-            
+
             // Get the selected tile coordinates and checks if they match the shrine's; if they do open the menu.
             var selectedTile = Game1.player.getTileLocation();
-            if (selectedTile.Y == 272 && selectedTile.X > 575 && selectedTile.X < 609)
-            {
-                ShowMenu();
-            }
+            var coordinates =  selectedTile.X + "," + selectedTile.Y;
+            this.Monitor.Log(coordinates + "  " + Game1.player.FacingDirection);
+
+            // Checks the player is adjacent to the shrine and has used an action button,
+            // then suppresses old message and opens menu.
+            if (!e.Button.IsActionButton() || !(selectedTile.X > 34) || !(selectedTile.X < 40) ||
+                !(selectedTile.Y > 16) || !(selectedTile.Y < 19)) return;
+            this.Helper.Input.Suppress(e.Button);
+            ShowMenu();
         }
 
         /**
@@ -59,7 +62,7 @@ namespace YobaGifts
          */
         private void ShowMenu()
         {
-            throw new NotImplementedException();
+            this.Monitor.Log("Menu opening.");
         }
         
 
@@ -89,32 +92,32 @@ namespace YobaGifts
             var staminaChance = value * 0.14;
             var result = new Random().Next(1,101);
             var events = this.Helper.Data.ReadSaveData<List<Event>>("events") ?? new List<Event>();
-            var eEvent = new Event {daysLeft = Convert.ToInt32(Math.Floor(Math.Sqrt(value) / 6))};
+            var eEvent = new Event {DaysLeft = Convert.ToInt32(Math.Floor(Math.Sqrt(value) / 6))};
 
             if (ringChance > result)
             {
-                eEvent.eventID = "ringofyoba";
+                eEvent.EventId = "ringofyoba";
                 HandleEvent(eEvent, events);
                 SaveEvents(events);
             }
             else if (luckChance > result)
             {
-                eEvent.eventID = "luck";
-                eEvent.modifierValue = 0.03;
+                eEvent.EventId = "luck";
+                eEvent.ModifierValue = 0.03;
                 HandleEvent(eEvent, events);
                 SaveEvents(events);
             }
             else if (staminaChance > result)
             {
-                eEvent.eventID = "maxstamina";
-                eEvent.modifierValue = 17;
+                eEvent.EventId = "maxstamina";
+                eEvent.ModifierValue = 17;
                 HandleEvent(eEvent, events);
                 SaveEvents(events);
             }
             else
             {
-                eEvent.eventID = "maxhealth";
-                eEvent.modifierValue = 20;
+                eEvent.EventId = "maxhealth";
+                eEvent.ModifierValue = 20;
                 HandleEvent(eEvent, events);
                 SaveEvents(events);
             }
@@ -130,19 +133,19 @@ namespace YobaGifts
             switch (random.Next(1,6))
             {
                 case 1:
-                    eEvent.eventID = "luck";
-                    eEvent.daysLeft = random.Next(1, 4);
-                    eEvent.modifierValue = -0.03;
+                    eEvent.EventId = "luck";
+                    eEvent.DaysLeft = random.Next(1, 4);
+                    eEvent.ModifierValue = -0.03;
                     break;
                 case 2: case 3:
-                    eEvent.eventID = "maxhealth";
-                    eEvent.daysLeft = random.Next(1, 4);
-                    eEvent.modifierValue = -15;
+                    eEvent.EventId = "maxhealth";
+                    eEvent.DaysLeft = random.Next(1, 4);
+                    eEvent.ModifierValue = -15;
                     break;
                 case 4: case 5:
-                    eEvent.eventID = "maxstamina";
-                    eEvent.daysLeft = random.Next(1, 4);
-                    eEvent.modifierValue = -20;
+                    eEvent.EventId = "maxstamina";
+                    eEvent.DaysLeft = random.Next(1, 4);
+                    eEvent.ModifierValue = -20;
                     break;
             }
             var events = this.Helper.Data.ReadSaveData<List<Event>>("events") ?? new List<Event>();
@@ -195,21 +198,21 @@ namespace YobaGifts
          */
         private void HandleEvent(Event eEvent, List<Event> events)
         {
-            eEvent.daysLeft -= 1;
-            if (eEvent.daysLeft == 0)
+            eEvent.DaysLeft -= 1;
+            if (eEvent.DaysLeft == 0)
             {
                 events.Remove(eEvent);
             }
-            switch (eEvent.eventID)
+            switch (eEvent.EventId)
             {
                 case "luck":
-                    Game1.player.team.sharedDailyLuck.Value += eEvent.modifierValue;
+                    Game1.player.team.sharedDailyLuck.Value += eEvent.ModifierValue;
                     break;
                 case "maxhealth":
-                    Game1.player.maxHealth += Convert.ToInt16(eEvent.modifierValue);
+                    Game1.player.maxHealth += Convert.ToInt16(eEvent.ModifierValue);
                     break;
                 case "maxstamina":
-                    Game1.player.MaxStamina += Convert.ToInt16(eEvent.modifierValue);     
+                    Game1.player.MaxStamina += Convert.ToInt16(eEvent.ModifierValue);     
                     break;
                 case "ringofyoba":
                     GiveYobaRing();
@@ -252,13 +255,13 @@ namespace YobaGifts
 
             foreach (var eEvent in events)
             {
-                switch (eEvent.eventID)
+                switch (eEvent.EventId)
                 {
                     case "maxhealth":
-                    Game1.player.maxHealth -= Convert.ToInt16(eEvent.modifierValue);
+                    Game1.player.maxHealth -= Convert.ToInt16(eEvent.ModifierValue);
                     break;
                     case "maxstamina":
-                    Game1.player.MaxStamina -= Convert.ToInt16(eEvent.modifierValue);     
+                    Game1.player.MaxStamina -= Convert.ToInt16(eEvent.ModifierValue);     
                     break;
                 }
             }
@@ -278,9 +281,9 @@ namespace YobaGifts
          */
         class Event
         {
-            public string eventID { get; set; } // luck, maxhealth, maxstamina, ringofyoba
-            public double modifierValue { get; set; }
-            public int daysLeft { get; set; }
+            public string EventId { get; set; } // luck, maxhealth, maxstamina, ringofyoba
+            public double ModifierValue { get; set; }
+            public int DaysLeft { get; set; }
         }
     }
 }
