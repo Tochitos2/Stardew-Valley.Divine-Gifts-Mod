@@ -1,10 +1,10 @@
 ﻿{
-  "Name":"YobaGifts",
+  "Name":"DivineGifts",
   "Author": "Tochitos2",
   "Version": "1.0.0",
   "Description": "Get gifts from Yoba in exchange for offerings at their shrine!",
-  "UniqueID": "Tochitos2.YobaGifts",
-  "EntryDll": "YobaGifts.dll",
+  "UniqueID": "Tochitos2.DivineGifts",
+  "EntryDll": "DivineGifts.dll",
   "MinimumApiVersion": "2.10.0",
   "UpdateKeys": []
 }
